@@ -12,8 +12,7 @@ Job ID: 114761195634627
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.databricks.operators.databricks import DatabricksRunNowOperator
-from airflow.providers.databricks.sensors.databricks import DatabricksRunNowSensor
-from airflow.operators.dummy import DummyOperator
+from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
 
 # Define default arguments for the DAG
@@ -76,32 +75,20 @@ run_databricks_job = DatabricksRunNowOperator(
     dag=dag,
 )
 
-# Task 3: Monitor job completion (optional - the RunNowOperator already waits for completion)
-# This sensor can be used if you need additional monitoring or want to separate the triggering and monitoring
-monitor_job = DatabricksRunNowSensor(
-    task_id='monitor_databricks_job',
-    databricks_conn_id='databricks_test',
-    run_id="{{ task_instance.xcom_pull(task_ids='run_databricks_job') }}",
-    timeout=3600,  # 1 hour timeout
-    poke_interval=60,  # Check every 60 seconds
-    dag=dag,
-)
-
-# Task 4: Log job completion
+# Task 3: Log job completion
+# Note: DatabricksRunNowOperator already waits for job completion by default
 completion_task = PythonOperator(
     task_id='log_job_completion',
     python_callable=log_job_completion,
     dag=dag,
 )
 
-# Task 5: Cleanup or post-processing (placeholder)
-cleanup_task = DummyOperator(
+# Task 4: Cleanup or post-processing (placeholder)
+cleanup_task = EmptyOperator(
     task_id='cleanup_and_finalize',
     dag=dag,
 )
 
 # Define task dependencies
-start_task >> run_databricks_job >> monitor_job >> completion_task >> cleanup_task
-
-# Alternative simpler dependency chain (without separate monitoring)
-# start_task >> run_databricks_job >> completion_task >> cleanup_task
+# DatabricksRunNowOperator waits for job completion by default, so no separate monitoring needed
+start_task >> run_databricks_job >> completion_task >> cleanup_task
