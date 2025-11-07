@@ -27,7 +27,7 @@ default_args = {
 with DAG(
     'simple_databricks_job',
     start_date=datetime(2024, 1, 1),
-    schedule_interval='@daily',  # Run daily
+    schedule='@daily',  # Run daily
     default_args=default_args,
     description='Simple Databricks job execution via Airflow',
     catchup=False,

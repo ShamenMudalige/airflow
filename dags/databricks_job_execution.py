@@ -31,7 +31,7 @@ dag = DAG(
     'databricks_job_execution',
     default_args=default_args,
     description='Execute Databricks job via Airflow',
-    schedule_interval=timedelta(hours=1),  # Adjust schedule as needed
+    schedule=timedelta(hours=1),  # Adjust schedule as needed
     catchup=False,
     tags=['databricks', 'etl', 'data-processing'],
 )
