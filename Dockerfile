@@ -1,5 +1,8 @@
 FROM astrocrpublic.azurecr.io/runtime:3.1-3
 
+# Switch to root to install packages
+USER root
+
 # Install gnupg first, then Microsoft SQL Server tools
 RUN apt-get update && \
     apt-get install -y gnupg curl && \
@@ -10,3 +13,6 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ENV PATH="$PATH:/opt/mssql-tools/bin"
+
+# Switch back to astro user
+USER astro
